@@ -6,6 +6,7 @@ import os
 import openai
 import argparse
 import urllib.request
+from html.parser import HTMLParser
 
 #Command line argument parser 
 parser = argparse.ArgumentParser(description='Fetch a Medium story\'s textual contents.')
@@ -21,11 +22,21 @@ def fetch_article_content(url):
     headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17'
     #--
 
+    #Pull webpage
     request = urllib.request.Request(url, headers=headers)
     response = urllib.request.urlopen(request)
-
     the_page = response.read()
-    return the_page
+    #---
+
+    #Parse through the webpage for "text":"content of article"
+    class MyHTMLParser(HTMLParser):
+        def handle_data(self, data):
+            print("Encountered some data  :", data)
+
+    parser = MyHTMLParser()
+    page_data = parser.feed(str(the_page))
+    #---
+    return page_data
 #---
 
 print(fetch_article_content(arguments.url))
