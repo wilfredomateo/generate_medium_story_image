@@ -1,12 +1,12 @@
-#This program will pull an article from Medium and create a AI Image from its content (keywords)
+#This program will pull content (article paragraphs) from Medium and create an AI Image from its keywords
 #Developer: Wilfredo Mateo
 #---
 
 import os
+import re
 import openai
 import argparse
 import urllib.request
-from html.parser import HTMLParser
 
 #Command line argument parser 
 parser = argparse.ArgumentParser(description='Fetch a Medium story\'s textual contents.')
@@ -14,7 +14,7 @@ parser.add_argument('url', metavar='URL', help='A URL that points to a Medium st
 arguments = parser.parse_args()
 #---
 
-#Function to fetch the Medium article's content from a URL
+#Fetch HTML (<article>) content from a URL
 def fetch_article_content(url):
     
     #Add headers to fake a browser in order to overcome a 403 error
@@ -25,36 +25,39 @@ def fetch_article_content(url):
     #Pull webpage
     request = urllib.request.Request(url, headers=headers)
     response = urllib.request.urlopen(request)
-    the_page = response.read()
+    the_page_bytes = response.read()
+    
+    #Convert data to utf-8
+    html = the_page_bytes.decode("utf-8")
+
+    #Extract article text from HTML code
+    pattern = "<article.*?>.*?</article.*?>"
+    match_results = re.search(pattern, html, re.IGNORECASE)
+    paragraph = match_results.group()
+    paragraph = re.sub("<.*?>", "", paragraph) #Remove HTML tags
     #---
 
-    #Parse through the webpage for "text":"content of article"
-    class MyHTMLParser(HTMLParser):
-        def handle_data(self, data):
-            print("Encountered some data  :", data)
-
-    parser = MyHTMLParser()
-    page_data = parser.feed(str(the_page))
-    #---
-    return page_data
+    return paragraph
 #---
 
-print(fetch_article_content(arguments.url))
+#Have ChatGPT generate keywords from article
+def generate_keywords(article):
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=article,
+        temperature=0.5,
+        max_tokens=60,
+        top_p=1.0,
+        frequency_penalty=0.8,
+        presence_penalty=0.0    
+    )
+    return response
+#---
 
 #Grab OpenAI API key
-#openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-#Gets 
-#prompt= 
-#Generate keywords
-#response = openai.Completion.create(
-#  model="text-davinci-003",
-#  prompt="",
-#  temperature=0.5,
-#  max_tokens=60,
-#  top_p=1.0,
-#  frequency_penalty=0.8,
-#  presence_penalty=0.0
-#)
+article = fetch_article_content(arguments.url)
+keywords = generate_keywords(article)
 
-#print(response)
+print(keywords)
