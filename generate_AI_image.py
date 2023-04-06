@@ -45,13 +45,13 @@ def generate_keywords(article):
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=article,
-        temperature=0.5,
+        temperature=0.7,
         max_tokens=60,
         top_p=1.0,
-        frequency_penalty=0.8,
-        presence_penalty=0.0    
+        frequency_penalty=0.0,
+        presence_penalty=1
     )
-    return response
+    return response['choices'][0]['text'] #Return the text from dictionary
 #---
 
 #Grab OpenAI API key
