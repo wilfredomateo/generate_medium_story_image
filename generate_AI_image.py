@@ -54,10 +54,16 @@ def generate_keywords(article):
     return response['choices'][0]['text'] #Return the text from dictionary
 #---
 
+#Provide keywords to AI image creator
+def create_image(keywords):
+    image = ''
+    return image
+
 #Grab OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 article = fetch_article_content(arguments.url)
-keywords = generate_keywords(article)
+article_keywords = generate_keywords(article)
+#aricle_image = create_image(article_keywords)
 
-print(keywords)
+print(article_keywords)
