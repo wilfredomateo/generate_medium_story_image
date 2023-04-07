@@ -71,6 +71,6 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 article = fetch_article_content(arguments.url)
 article_keywords = generate_keywords(article)
-article_image = create_image(article_keywords)
+article_image = create_image(article_keywords, 1)
 
 print(article_image)
