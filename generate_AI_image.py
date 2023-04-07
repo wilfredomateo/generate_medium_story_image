@@ -1,5 +1,6 @@
-#This program will pull content (article paragraphs) from Medium and create an AI Image from its keywords
 #Developer: Wilfredo Mateo
+#Filename: generate_AI_image.py
+#This program will pull content (article paragraphs) from Medium and create an AI Image from its keywords
 #---
 
 import os
@@ -55,15 +56,21 @@ def generate_keywords(article):
 #---
 
 #Provide keywords to AI image creator
-def create_image(keywords):
-    image = ''
-    return image
+def create_image(keywords, number):
+    response = openai.Image.create(
+    prompt=keywords,
+    n=number, #number of images generated
+    size="1024x1024"
+    )
+
+    image_url = response['data'][0]['url'] #Return the url from dictionary
+    return image_url
 
 #Grab OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 article = fetch_article_content(arguments.url)
 article_keywords = generate_keywords(article)
-#aricle_image = create_image(article_keywords)
+article_image = create_image(article_keywords)
 
-print(article_keywords)
+print(article_image)
